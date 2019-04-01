@@ -71,17 +71,9 @@ def convert_folder(folderpath, data_type='filt', transpose=True):
             new_path = '%s/%s'%(folderpath,file)
         
             data = HdF5IO(new_path)
-            if data_type == 'filt':
-                traces = data.filt_record()
-                #time = data.filt_time()
-                
-            elif data_type=='raw':
-                traces = data.raw_record()
-                #time = data.raw_time()
-                
-            elif data_type=='LFP':
-                traces = data.filt_record()
-                #time = data.filt_time()                
+
+            traces = data.raw_record()
+            #time = data.raw_time()
         
             name = re.sub('\.h5$', '', file)
         
