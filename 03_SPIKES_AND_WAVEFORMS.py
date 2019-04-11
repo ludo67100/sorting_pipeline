@@ -18,14 +18,14 @@ Take a look at the DATA INFO section, fill the info, run and let the magic happe
 #----------------------------FILL BELOW----------------------------------------
 
 #The path of the TDC catalogue file - must be STRING format
-path ='C:/Users/ludov/Documents/Fede/2535-1300-P3/tdc_concatenate/'
+path =r'C:\Users\ludov\Documents\Fede\Debug Trash\tdc_conc_900_P3'
 
 #Name of the experiment, protocol... anything to discriminate the date. Will be used
 #for datasheets/figure labeling - must be STRING format  
 name = '2535-1300-P3'
 
 #Where to save datasheets and figures. If None, nothing will be saved  - must be STRING format
-savedir = 'C:/Users/ludov/Documents/Fede/2535-1300-P3'
+savedir = r'C:\Users\ludov\Documents\Fede\Debug Trash'
 
 sampling_rate = 20000 #in Hz
 
@@ -37,7 +37,7 @@ stim_duration = 1.0
 conc = 10
 
 #Specify the channel group to explore as [#]. Feel free to do them all : [0,1,2,3]
-channel_groups=[0,1,2,3]
+channel_groups=[2,3]
 
 #If True : close figure automatically (avoids to overhelm screen when looping and debug)
 closefig = False
@@ -96,43 +96,39 @@ for chan_grp in channel_groups:
     plt.xlabel('Probe location (micrometers)')
     plt.ylabel('Probe location (micrometers)')
           
-    for cluster in np.unique(clust_id):
+    for cluster, idx in zip(np.unique(waveforms_label),range(len(np.unique(waveforms_label)))):
         if cluster == -9: #The alien values
+            continue
+        
+        if cluster == -2: #The noise
+            continue
+        
+        if cluster == -1: #The trash
             continue
         
         for loc, prob_loc in zip(range(len(probe_geometry)), probe_geometry): 
             x_offset, y_offset = prob_loc[0], prob_loc[1]
             #base_x = np.arange(0,len(waveforms[1,:,loc]),1)  
-            base_x = np.linspace(-15,15,num=len(waveforms[1,:,loc])) #Basic x-array for plot, centered
+            base_x = np.linspace(-15,15,num=len(waveforms[idx,:,loc])) #Basic x-array for plot, centered
          
-            if cluster == -1:# First array of waveforms, contains the zero line 
-                
-                if y_offset!=0: #Top and down zero line
-                    plt.plot(base_x,waveforms[0,:,loc]+y_offset, color='0.8')
-                
-                if x_offset!=0: #Left and right zeeo_line
-                    plt.plot(base_x+2*x_offset,waveforms[0,:,loc]+y_offset,color='0.8')
-                    
-            else:
-                                
-                clust_color = 'C{}'.format(cluster+1)
-    
-                if y_offset!=0: #Top and down probe 
-                    if loc == 0 : #to avoid fucking legend redundancy
-                       wave = waveforms[cluster+1,:,loc]+y_offset
-                       median = plt.plot(base_x,wave,color=clust_color,label='Cluster {}'.format(cluster))
-                       plt.fill_between(base_x,wave-wf_rms[cluster+1],wave+wf_rms[cluster+1], color=clust_color,alpha=wf_alpha)
-                    else :
-                       wave = waveforms[cluster+1,:,loc]+y_offset
-                       median = plt.plot(base_x,wave,color=clust_color)
-                       plt.fill_between(base_x,wave-wf_rms[cluster+1],wave+wf_rms[cluster+1], color=clust_color,alpha=wf_alpha)
-    
-                plt.legend()
-                   
-                if x_offset!=0: #Left and right probe
-                    wave = waveforms[cluster+1,:,loc]+y_offset
-                    plt.plot(base_x+2*x_offset,wave,color=clust_color)
-                    plt.fill_between(base_x+2*x_offset,wave-wf_rms[cluster+1],wave+wf_rms[cluster+1], color=clust_color,alpha=wf_alpha)
+            clust_color = 'C{}'.format(idx)
+
+            if y_offset!=0: #Top and down probe 
+                if loc == 0 : #to avoid fucking legend redundancy
+                   wave = waveforms[idx,:,loc]+y_offset
+                   median = plt.plot(base_x,wave,color=clust_color,label='Cluster {}'.format(cluster))
+                   plt.fill_between(base_x,wave-wf_rms[idx],wave+wf_rms[idx], color=clust_color,alpha=wf_alpha)
+                else :
+                   wave = waveforms[idx,:,loc]+y_offset
+                   median = plt.plot(base_x,wave,color=clust_color)
+                   plt.fill_between(base_x,wave-wf_rms[idx],wave+wf_rms[idx], color=clust_color,alpha=wf_alpha)
+
+            plt.legend()
+               
+            if x_offset!=0: #Left and right probe
+                wave = waveforms[idx,:,loc]+y_offset
+                plt.plot(base_x+2*x_offset,wave,color=clust_color)
+                plt.fill_between(base_x+2*x_offset,wave-wf_rms[idx],wave+wf_rms[idx], color=clust_color,alpha=wf_alpha)
 
     
     if savedir !=None :
@@ -146,17 +142,20 @@ for chan_grp in channel_groups:
             waveform_info.to_excel(writer, sheet_name='info')
 
             
-            for cluster in np.unique(clust_id):
+            for cluster, idx in zip(np.unique(waveforms_label),range(len(np.unique(waveforms_label)))):
+
                 
                 if cluster == -9: #The alien values
                     continue
                 
+                if cluster == -2:
+                    continue
+                
                 if cluster==-1:
-                    clust_WF = pd.DataFrame(waveforms[0,:,:])      
-                    clust_WF.to_excel(writer,sheet_name='horizon')               
+                    continue              
                     
                 else:
-                    clust_WF = pd.DataFrame(waveforms[cluster+1,:,:])      
+                    clust_WF = pd.DataFrame(waveforms[idx,:,:])      
                     clust_WF.to_excel(writer,sheet_name='cluster {}'.format(cluster))
                 
     else : 
@@ -177,16 +176,21 @@ for chan_grp in channel_groups:
         ax[0].axvspan(stim,stim+stim_duration,color='skyblue',alpha=0.6)
         ax[1].axvspan(stim,stim+stim_duration,color='skyblue',alpha=0.6)
                     
-    SPIKES = [] #To store all the spikes, one array per cluster 
+    SPIKES = [] #To store all the spikes, one array per cluster
+    cluster_list = [] #To store the cluster for file indexing 
     
-    for cluster in np.unique(clust_id):
+    for cluster, idx in zip(np.unique(waveforms_label),range(len(np.unique(waveforms_label)))):
         if cluster == -9:
+            continue
+        
+        if cluster == -2:
             continue
         
         if cluster==-1:
             continue
         
-        clust_color = 'C{}'.format(cluster+1)
+        clust_color = 'C{}'.format(idx)
+        cluster_list.append(str(cluster))
     
         temp_ = [] #To store spikes from each cluster
     
@@ -204,10 +208,10 @@ for chan_grp in channel_groups:
     #SAVE THE SPIKE DATA (or not) ---------------------------------------------
     
     if savedir != None:
-        sorted_spikes = pd.DataFrame(SPIKES)
-        sorted_spikes.to_excel('{}/{}_Spike_times_changrp_{}.xlsx'.format(savedir,name,chan_grp))
+        sorted_spikes = pd.DataFrame(SPIKES,index=cluster_list)
+        sorted_spikes.to_excel('{}/{}_Spike_times_changrp_{}.xlsx'.format(savedir,name,chan_grp),index_label='Cluster')
         fig2.savefig('{}/{}_Spike_times_changrp_{}.png'.format(savedir,name,chan_grp))
-        
+
     
         
     
