@@ -78,7 +78,7 @@ def compute_timefreq(sig, sampling_rate, f_start, f_stop, delta_freq=1., nb_freq
     #~ print 'ratio', ratio
     if ratio>1:
         # sig2 = tools.decimate(sig, ratio)
-        sig2 = scipy.signal.decimate(sig, ratio, zero_phase=True)
+        sig2 = scipy.signal.decimate(sig, ratio,n=4, zero_phase=True) #ORDER OF 4 FOR SMALL FREQ INTERVALLS !!!!!
     else:
         sig2 = sig
         ratio=1
