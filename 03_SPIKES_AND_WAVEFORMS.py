@@ -120,7 +120,7 @@ for chan_grp in channel_groups:
                 if y_offset!=0: #Top and down probe 
                     if loc == 0 : #to avoid fucking legend redundancy
                        wave = waveforms[cluster+1,:,loc]+y_offset
-                       median = plt.plot(base_x,wave,color=clust_color,label='Cluster {}'.format(cluster+1))
+                       median = plt.plot(base_x,wave,color=clust_color,label='Cluster {}'.format(cluster))
                        plt.fill_between(base_x,wave-wf_rms[cluster+1],wave+wf_rms[cluster+1], color=clust_color,alpha=wf_alpha)
                     else :
                        wave = waveforms[cluster+1,:,loc]+y_offset
@@ -196,7 +196,7 @@ for chan_grp in channel_groups:
                 
         SPIKES.append(np.asarray(np.ravel(temp_)))
         
-        ax[1].eventplot(np.ravel(temp_), lineoffsets=cluster+1, linelengths=0.5, color=clust_color)
+        ax[1].eventplot(np.ravel(temp_), lineoffsets=cluster, linelengths=0.5, color=clust_color)
        
     if closefig==True:
         plt.close()
