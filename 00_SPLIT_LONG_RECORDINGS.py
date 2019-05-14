@@ -16,7 +16,7 @@ nb_channel = 16
 sample_rate = 20000 #in Hz
 t_start = 0 
 
-split_in = 10 #Episodes 
+split_in = 20 #Episodes 
 
 #Folder for data 
 folder  = '//equipe2-nas1/Public/Federica/Ephy/5101 (Baseline of 2s - Atlas - Male)/HDF5/rbf/P13'
@@ -45,7 +45,7 @@ for file,idx in zip(files, range(len(files))):
     if sigs.shape[1]*sampling_period < 181: #Recording of 180s
 
         #Delimits the length and begining of each episodes 
-        step = int(sigs.shape[1]/10)
+        step = int(sigs.shape[1]/20)
         starts = np.arange(0,sigs.shape[1],step)
         
         #Remove the last step 
