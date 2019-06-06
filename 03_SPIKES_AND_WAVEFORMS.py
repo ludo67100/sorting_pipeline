@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Fri Apr 12 17:44:09 2019
+
+@author: F.LARENO-FACCINI
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Wed Apr  3 18:11:04 2019
 This script allows to extract spike times and waveform from tridesclous catalogue
 in excel sheet
@@ -14,14 +21,16 @@ Take a look at the DATA INFO section, fill the info, run and let the magic happe
 #----------------------------FILL BELOW----------------------------------------
 
 #The path of the TDC catalogue file - must be STRING format
-path =r'D:/F.LARENO.FACCINI/Preliminary Results/Ephy/5107 (Baseline of 2s - Atlas - Female)/HDF5/1600/P13/rbf/Concatenate/Conc/tdc_2019-05-07T17-43-01Concatenate_1600um_P13'
+path =r'C:/Users/Isope/Documents/DATA/FEDERICA/EPHYS/2535/tdc_conc_900_P3'
 
 #Name of the experiment, protocol... anything to discriminate the date. Will be used
 #for datasheets/figure labeling - must be STRING format  
-name = '5107-1600-P13'
+name = '2535-900-P3'
 
 #Where to save datasheets and figures. If None, nothing will be saved  - must be STRING format
-savedir = r'D:/F.LARENO.FACCINI/Preliminary Results/Ephy/5107 (Baseline of 2s - Atlas - Female)/HDF5/1600/P13/rbf/Concatenate/'
+savedir = r'C:\Users\Isope\Documents\DATA\FEDERICA\EPHYS\2535'
+
+
 
 sampling_rate = 20000 #in Hz
 
@@ -35,7 +44,7 @@ water_duration = 0.15
 ep_len = 9.
 
 #Specify the channel group to explore as [#]. Feel free to do them all : [0,1,2,3]
-channel_groups=[0]
+channel_groups=[0,1,2,3]
 
 #If True : close figure automatically (avoids to overhelm screen when looping and debug)
 closefig = False
@@ -203,8 +212,13 @@ for chan_grp in channel_groups:
         for i,j in np.ndenumerate(clust_id):
             if j == cluster:
                 temp_.append(spike_times[i])
+
                 
         SPIKES.append(np.asarray(np.ravel(temp_)))
+        
+        if savedir != None:
+            sorted_spikes = pd.DataFrame(temp_)
+            sorted_spikes.to_excel('{}/{}_Spike_times_changrp_{}_cluster_{}.xlsx'.format(savedir,name,chan_grp,cluster),header=False,index=False)
         
         ax[1].eventplot(np.ravel(temp_), lineoffsets=cluster, linelengths=0.5, linewidth=0.5, color=clust_color)
        
@@ -214,6 +228,6 @@ for chan_grp in channel_groups:
     #SAVE THE SPIKE DATA (or not) ---------------------------------------------
     
     if savedir != None:
-        sorted_spikes = pd.DataFrame(SPIKES,index=cluster_list)
-        sorted_spikes.to_excel('{}/{}_Spike_times_changrp_{}.xlsx'.format(savedir,name,chan_grp),index_label='Cluster')
+#        sorted_spikes = pd.DataFrame(SPIKES,index=cluster_list)
+#        sorted_spikes.to_excel('{}/{}_Spike_times_changrp_{}.xlsx'.format(savedir,name,chan_grp),index_label='Cluster')
         fig2.savefig('{}/{}_Spike_times_changrp_{}.pdf'.format(savedir,name,chan_grp))
